@@ -1,0 +1,41 @@
+FROM google/cloud-sdk
+
+ENV TERRAFORM_VERSION=0.11.13
+ENV TERRAFORM_SHA256SUM=5925cd4d81e7d8f42a0054df2aafd66e2ab7408dbed2bd748f0022cfe592f8d2
+ENV TERRAFORM_URL=https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y unzip jq
+
+RUN curl -O ${TERRAFORM_URL} && \
+    echo "${TERRAFORM_SHA256SUM}  terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > terraform_${TERRAFORM_VERSION}_SHA256SUMS && \
+    sha256sum -c --strict terraform_${TERRAFORM_VERSION}_SHA256SUMS && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin && \
+    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    rm terraform_${TERRAFORM_VERSION}_SHA256SUMS
+
+ENV GO_VERSION=1.12.1    
+ENV GO_SHA256SUM=2a3fdabf665496a0db5f41ec6af7a9b15a49fbe71a85a50ca38b1f13a103aeec
+ENV GO_URL=https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz
+    
+RUN curl -O ${GO_URL} && \
+    echo "${GO_SHA256SUM}  go${GO_VERSION}.linux-amd64.tar.gz" > go${GO_VERSION}_SHA256SUMS && \
+    sha256sum -c --strict go${GO_VERSION}_SHA256SUMS && \
+    tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local && \
+    rm go${GO_VERSION}.linux-amd64.tar.gz && \
+    rm go${GO_VERSION}_SHA256SUMS
+    
+ENV GOROOT=/usr/local/go
+ENV PATH=$GOROOT/bin:$PATH
+
+ENV HELM_VERSION=2.13.1
+ENV HELM_SHA256SUM=c1967c1dfcd6c921694b80ededdb9bd1beb27cb076864e58957b1568bc98925a
+ENV HELM_URL=https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz
+
+RUN curl -O ${HELM_URL} && \
+    echo "${HELM_SHA256SUM}  helm-v${HELM_VERSION}-linux-amd64.tar.gz" > helm_v${HELM_VERSION}_SHA256SUMS && \
+    sha256sum -c --strict helm_v${HELM_VERSION}_SHA256SUMS && \
+    tar -xvf helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /usr/local/bin --strip 1 && \
+    rm /usr/local/bin/LICENSE && \
+    rm /usr/local/bin/README.md && \
+    rm helm-v${HELM_VERSION}-linux-amd64.tar.gz && \
+    rm helm_v${HELM_VERSION}_SHA256SUMS
